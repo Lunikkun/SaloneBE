@@ -17,8 +17,9 @@
   "main": "out/index.js",
   "type": "module",
   "scripts": {
-    "test": "nodemon ./out/index.js",
-    "generate": "npx drizzle-kit generate:pg --config=src/drizzle.config.ts"
+    "test": "nodemon ./out/src/index.js",
+    "generate": "npx drizzle-kit generate:pg",
+    "push": "npx drizzle-kit push:pg"
   },
   "author": "",
   "license": "ISC",
