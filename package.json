@@ -1,0 +1,28 @@
+{
+  "devDependencies": {
+    "@types/pg": "^8.11.2",
+    "dotenv": "^16.4.5",
+    "drizzle-kit": "^0.20.14",
+    "nodemon": "^3.1.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@types/koa": "^2.15.0",
+    "drizzle-orm": "^0.29.4",
+    "koa": "^2.15.0",
+    "pg": "^8.11.3"
+  },
+  "name": "salonebe",
+  "version": "1.0.0",
+  "main": "out/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "nodemon ./out/index.js",
+    "generate": "npx drizzle-kit generate:pg --config=src/drizzle.config.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "backend di un salone capelli"
+
+ 
+}
