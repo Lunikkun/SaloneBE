@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../../dbConnection.js';
 import { InsertUser, User, users } from './schema.js';
 import { QueryResult } from 'pg';
+
 //INSERT A USER INTO DB
 export async function insertUser(u : InsertUser) : Promise<QueryResult> {
     return await db.insert(users).values(u);

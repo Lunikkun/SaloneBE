@@ -1,11 +1,12 @@
-import { PgTable, numeric, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { PgTable, numeric, pgTable, serial, text, uuid } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
-    id: uuid("id").primaryKey().notNull(),
+    
+    mail: text("mail").notNull().unique(),
     nome: text("nome").notNull(),
     cognome: text("cognome").notNull(),
-    mail: text("mail").notNull(),
     password: text("password").notNull()
+    //AUTO INCREMENT ID SERIAL NON VA 
 });
 
 export type InsertUser = typeof users.$inferInsert;

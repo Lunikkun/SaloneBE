@@ -13,17 +13,21 @@ import { users } from './schema.js';
 //INSERT A USER INTO DB
 export function insertUser(u) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield db.insert(users).values(u);
+        return yield db.insert(users).values(u);
     });
 }
 //SELECT SINGLE USER
 export function selectUser(mail) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield db.select().from(users).where(eq(users.mail, mail));
+        let _result = yield db.select().from(users).where(eq(users.mail, mail));
+        return _result[0];
     });
 }
+//SEELCT MULTIPLE USERS
 export function selectAllUsers() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield db.select().from(users);
+        let _result = yield db.select().from(users);
+        return _result;
+        //JFLAP
     });
 }
