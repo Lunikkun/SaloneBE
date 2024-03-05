@@ -9,7 +9,7 @@ export async function insertUser(u : InsertUser) : Promise<QueryResult> {
                     .values(u);
 }
 //SELECT SINGLE USER
-export async function selectUser(mail:string) : Promise<User>{
+export async function selectUser(mail:Required<string>) : Promise<User>{
     let _result = await db.select()
                         .from(users)
                         .where(eq(users.mail, mail));
@@ -24,12 +24,12 @@ export async function selectAllUsers() : Promise<User[]>{
     //JFLAP
 }
 //REMOVE USER
-export async function removeUser(mail:string) : Promise<QueryResult> {
+export async function removeUser(mail:Required<string>) : Promise<QueryResult> {
    return await db.delete(users)
             .where(eq(users.mail, mail));
 }
 //MODIFY USER INFO
-export async function updateUser(mail:string, {cognome, nome, password} : Partial<User>) {
+export async function updateUser(mail:Required<string>, {cognome, nome, password} : Partial<User>) {
         return(
         await db.update(users)
         .set({cognome:cognome, nome:nome, password:password})

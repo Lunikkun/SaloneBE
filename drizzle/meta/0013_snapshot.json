@@ -1,6 +1,6 @@
 {
-  "id": "2c175442-ea1c-4aba-b696-538bb1aa9691",
-  "prevId": "eaa60f96-e4c3-40f1-b72b-f53ad7adb8c9",
+  "id": "fcbf0f86-6864-4fa9-9003-e67b66baa376",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -10,7 +10,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "numeric",
           "primaryKey": true,
           "notNull": true
         },
@@ -42,10 +42,10 @@
       "name": "users",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
+        "mail": {
+          "name": "mail",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "nome": {
@@ -60,12 +60,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "mail": {
-          "name": "mail",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "password": {
           "name": "password",
           "type": "text",
@@ -76,7 +70,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "users_mail_unique": {
+          "name": "users_mail_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "mail"
+          ]
+        }
+      }
     }
   },
   "enums": {},

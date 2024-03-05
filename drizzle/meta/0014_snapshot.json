@@ -1,6 +1,6 @@
 {
-  "id": "eaa60f96-e4c3-40f1-b72b-f53ad7adb8c9",
-  "prevId": "f5ab9b75-6e1b-4436-9676-da71bf6b8a76",
+  "id": "73e09d22-c146-4d0f-8f9a-94ccdd985e8f",
+  "prevId": "fcbf0f86-6864-4fa9-9003-e67b66baa376",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -12,7 +12,8 @@
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "nome": {
           "name": "nome",
@@ -42,10 +43,10 @@
       "name": "users",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
+        "mail": {
+          "name": "mail",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "nome": {
@@ -60,14 +61,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "mail": {
-          "name": "mail",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "passwors": {
-          "name": "passwors",
+        "password": {
+          "name": "password",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -76,7 +71,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "users_mail_unique": {
+          "name": "users_mail_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "mail"
+          ]
+        }
+      }
     }
   },
   "enums": {},

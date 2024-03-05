@@ -7,13 +7,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import koa from "koa";
-const app = new koa();
-app.listen(3000, () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("Server avviato");
-    //let u : InsertUser = {nome:"aadda", cognome: "ssccc", mail:"aabbp", password:"aaaa"}
-    //await insertUser(u);
-    //await updateUser("aabbp",{cognome: "Gattaro"});
-    //let res = await selectUser("aabbp");
-    //console.log(res);
-}));
+import { insertService } from "./db/saloonServices/handler.js";
+(() => __awaiter(void 0, void 0, void 0, function* () {
+    yield insertService({ nome: "Taglio Corto", prezzo: "20.00", descrizione: "taglio di capelli corto" });
+    yield insertService({ nome: "Taglio Lungo", prezzo: "35.00", descrizione: "taglio di capelli lungo" });
+    yield insertService({ nome: "Barba + Taglio Corto", prezzo: "25.00", descrizione: "taglio di capelli con taglio barba" });
+    yield insertService({ nome: "Solo Barba", prezzo: "10.00", descrizione: "rifinitura barba" });
+    //let res = await selectService(0);
+}))();

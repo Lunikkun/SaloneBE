@@ -1,6 +1,7 @@
-import { numeric, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { integer } from "drizzle-orm/pg-core";
+import { numeric, pgTable, text } from "drizzle-orm/pg-core";
 export const saloonServices = pgTable("saloonServices", {
-    id: uuid("id").primaryKey().notNull(),
+    id: integer("id").primaryKey(),
     nome: text("nome").notNull(),
     prezzo: numeric("prezzo").notNull(),
     descrizione: text("descrizione")
