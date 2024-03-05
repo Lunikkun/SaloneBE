@@ -19,7 +19,8 @@
   "scripts": {
     "test": "nodemon ./out/src/index.js",
     "generate": "npx drizzle-kit generate:pg",
-    "push": "npx drizzle-kit push:pg"
+    "push": "npx drizzle-kit push:pg",
+    "studio": "npx drizzle-kit studio"
   },
   "author": "",
   "license": "ISC",

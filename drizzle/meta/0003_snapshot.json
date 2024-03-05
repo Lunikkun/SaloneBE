@@ -1,6 +1,6 @@
 {
-  "id": "81766858-e792-4445-9b5d-d7e79df4893f",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "2c175442-ea1c-4aba-b696-538bb1aa9691",
+  "prevId": "eaa60f96-e4c3-40f1-b72b-f53ad7adb8c9",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -62,6 +62,12 @@
         },
         "mail": {
           "name": "mail",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
           "type": "text",
           "primaryKey": false,
           "notNull": true
