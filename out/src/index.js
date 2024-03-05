@@ -7,11 +7,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { insertUser } from './db/users/handler.js';
+import { selectUser, updateUser } from './db/users/handler.js';
 import koa from "koa";
 const app = new koa();
 app.listen(3000, () => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Server avviato");
-    let u = { nome: "aaa", cognome: "ccc", mail: "aa", password: "aa" };
-    yield insertUser(u);
+    //let u : InsertUser = {nome:"aadda", cognome: "ssccc", mail:"aabbp", password:"aaaa"}
+    //await insertUser(u);
+    yield updateUser("aabbp", { cognome: "Maccarono" });
+    yield selectUser("aabbp");
 }));
