@@ -39,6 +39,7 @@ export function updateService(id, { nome, prezzo, descrizione }) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield db.update(saloonServices)
             .set({ nome: nome, prezzo: prezzo, descrizione: descrizione })
+            .where(eq(saloonServices.id, id))
             .returning();
     });
 }

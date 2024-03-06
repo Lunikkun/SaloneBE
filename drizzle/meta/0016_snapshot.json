@@ -1,5 +1,5 @@
 {
-  "id": "fcbf0f86-6864-4fa9-9003-e67b66baa376",
+  "id": "fb966eb8-751c-421b-8cbf-392445b2dd6b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -10,8 +10,15 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "numeric",
+          "type": "uuid",
           "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "nome": {
@@ -36,7 +43,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "saloonServices_code_unique": {
+          "name": "saloonServices_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      }
     },
     "users": {
       "name": "users",
@@ -45,7 +60,7 @@
         "mail": {
           "name": "mail",
           "type": "text",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
         "nome": {

@@ -10,7 +10,8 @@
     "@types/koa": "^2.15.0",
     "drizzle-orm": "^0.29.4",
     "koa": "^2.15.0",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "tsx": "^4.7.1"
   },
   "name": "salonebe",
   "version": "1.0.0",
@@ -25,6 +26,4 @@
   "author": "",
   "license": "ISC",
   "description": "backend di un salone capelli"
-
- 
 }
