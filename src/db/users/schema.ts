@@ -6,7 +6,6 @@ export const users = pgTable("users", {
     nome: text("nome").notNull(),
     cognome: text("cognome").notNull(),
     password: text("password").notNull()
-    //AUTO INCREMENT ID SERIAL NON VA 
 });
 
 export type InsertUser = typeof users.$inferInsert;

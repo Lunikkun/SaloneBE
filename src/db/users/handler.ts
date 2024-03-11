@@ -2,9 +2,11 @@ import { eq } from 'drizzle-orm';
 import { db } from '../../dbConnection.js';
 import { InsertUser, User, users } from './schema.js';
 import { QueryResult } from 'pg';
+import { getHash, verifyHash } from '../../argon.js';
 
 //INSERT A USER INTO DB
 export async function insertUser(u : InsertUser) : Promise<QueryResult> {
+    u.password = await getHash(u.password);
     return await db.insert(users)
                     .values(u);
 }
@@ -36,4 +38,15 @@ export async function updateUser(mail:Required<string>, {cognome, nome, password
         .where(eq(users.mail, mail))
         .returning()
         )
+}
+
+export async function login(mail:Required<string>, password:Required<string>) {
+    
+   let userToCheck : User = await selectUser(mail);
+   if(await verifyHash(password, userToCheck.password)){
+        console.log("verificato");
+   }else{
+        console.log("non verificato");
+   }
+   //TODO RETURNARE QUALCOSA DAL LOGIN, FORSE UN TOKEN O I DATI DI ACCESSO DELL'UTENTE
 }
