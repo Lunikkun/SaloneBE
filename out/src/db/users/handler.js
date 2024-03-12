@@ -10,9 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { eq } from 'drizzle-orm';
 import { db } from '../../dbConnection.js';
 import { users } from './schema.js';
+import { getHash, verifyHash } from '../../argon.js';
 //INSERT A USER INTO DB
 export function insertUser(u) {
     return __awaiter(this, void 0, void 0, function* () {
+        u.password = yield getHash(u.password);
         return yield db.insert(users)
             .values(u);
     });
@@ -50,5 +52,17 @@ export function updateUser(mail, { cognome, nome, password }) {
             .set({ cognome: cognome, nome: nome, password: password })
             .where(eq(users.mail, mail))
             .returning());
+    });
+}
+export function login(mail, password) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let userToCheck = yield selectUser(mail);
+        if (yield verifyHash(password, userToCheck.password)) {
+            console.log("verificato");
+        }
+        else {
+            console.log("non verificato");
+        }
+        //TODO RETURNARE QUALCOSA DAL LOGIN, FORSE UN TOKEN O I DATI DI ACCESSO DELL'UTENTE
     });
 }

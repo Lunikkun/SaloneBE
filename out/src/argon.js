@@ -7,14 +7,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { login, updateUser } from './db/users/handler.js';
-import koa from "koa";
-const app = new koa();
-app.listen(3000, () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("Server avviato");
-    //let u : InsertUser = {nome:"aadda", cognome: "ssccc", mail:"costantino@costantino.com", password:"chiaro"}
-    //await insertUser(u);
-    yield updateUser("costantino@costantino.com", { cognome: "Panemarzio" });
-    let res = yield login("costantino@costantino.com", "chiaro");
-    console.log(res);
-}));
+import * as argon2 from "argon2";
+export function getHash(clearPassword) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield argon2.hash(clearPassword);
+    });
+}
+export function verifyHash(clearPassword, hash) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield argon2.verify(hash, clearPassword);
+    });
+}

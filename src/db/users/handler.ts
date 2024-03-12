@@ -3,6 +3,7 @@ import { db } from '../../dbConnection.js';
 import { InsertUser, User, users } from './schema.js';
 import { QueryResult } from 'pg';
 import { getHash, verifyHash } from '../../argon.js';
+import { createSession } from '../sessions/handler.ts';
 
 //INSERT A USER INTO DB
 export async function insertUser(u : InsertUser) : Promise<QueryResult> {
@@ -35,16 +36,16 @@ export async function updateUser(mail:Required<string>, {cognome, nome, password
         return(
         await db.update(users)
         .set({cognome:cognome, nome:nome, password:password})
-        .where(eq(users.mail, mail))
-        .returning()
+        .where(eq(users.mail, mail)).returning()
         )
 }
 
 export async function login(mail:Required<string>, password:Required<string>) {
     
    let userToCheck : User = await selectUser(mail);
+   if(!userToCheck) console.log("ERRORE, NON PRESENTE!!!");
    if(await verifyHash(password, userToCheck.password)){
-        console.log("verificato");
+       createSession(userToCheck);
    }else{
         console.log("non verificato");
    }
