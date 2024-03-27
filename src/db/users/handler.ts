@@ -6,10 +6,15 @@ import { getHash, verifyHash } from '../../argon.js';
 import { createSession } from '../sessions/handler.ts';
 
 //INSERT A USER INTO DB
-export async function insertUser(u : InsertUser) : Promise<QueryResult> {
+export async function insertUser(u : InsertUser)  {
+    let altreadyExist = await selectUser(u["mail"])
     u.password = await getHash(u.password);
+    console.log(altreadyExist);
+    if(altreadyExist){
+       return null;
+    }
     return await db.insert(users)
-                    .values(u);
+                    .values(u).returning();
 }
 //SELECT SINGLE USER
 export async function selectUser(mail:Required<string>) : Promise<User>{
@@ -40,14 +45,37 @@ export async function updateUser(mail:Required<string>, {cognome, nome, password
         )
 }
 
-export async function login(mail:Required<string>, password:Required<string>) {
+export async function login(mail:string, password:string) {
     
-   let userToCheck : User = await selectUser(mail);
-   if(!userToCheck) console.log("ERRORE, NON PRESENTE!!!");
-   if(await verifyHash(password, userToCheck.password)){
-       createSession(userToCheck);
-   }else{
-        console.log("non verificato");
-   }
+    let userToCheck : User = await selectUser(mail);
+    let res : {
+        session : string,
+        result : boolean,
+        description : string
+     } = {
+        session: '',
+        result: false,
+        description: ""
+     };
+
+    if(!userToCheck) {
+        res.session="";
+        res.description="Utente non trovato";
+        res.result=false;
+        return res;
+    }
+    if(await verifyHash(password, userToCheck.password)){
+        res.session = await createSession(userToCheck);
+        res.result = true;
+        res.description = "Login avvenuto con successo"
+        return res; // Assign the value of 'res' before returning
+    }else{
+        res.description = "Password errata";
+        res.result = false;
+        res.session = "";
+        return res
+    }
    //TODO RETURNARE QUALCOSA DAL LOGIN, FORSE UN TOKEN O I DATI DI ACCESSO DELL'UTENTE
 }
+
+

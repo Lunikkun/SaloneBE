@@ -1,12 +1,12 @@
 import { boolean } from "drizzle-orm/mysql-core";
 import { db } from "../../dbConnection.js";
 import { User } from "../users/schema.js";
-import { sessions, Session, InsertSession } from "./schema.js";
-import { eq } from "drizzle-orm";
+import { sessions, InsertSession } from "./schema.js";
+import { eq, lt } from "drizzle-orm";
 
 
 export function generateToken() : string {
-    //IPOTESI: AGGIUNGERE IL PARAMETO NUMERICO TIME_PASSED
+    //IPOTESI: AGGIUNGERE IL PARAMETRO NUMERICO TIME_PASSED
     //USARLO PER RENDERE UNIVOCI I TOKEN DIVIDIVENDO %64 IN 64 CLASSI DI EQ.
     //POTREBBE NON FUNZIONARE PER CLASSI DI EQ UGUALI NONOSTANTE TEMPI DIVERSI
     const array = new Uint8Array(256);
@@ -32,6 +32,10 @@ export async function isPresent(token : string) : Promise<boolean>{
     }
 }
 
+export async function getUserIDFromToken(cookie:string) : Promise<number | null>{
+    let res = await db.select().from(sessions).where(eq(sessions.token, cookie));
+    return res[0].user_id;
+}
 export async function createSession(users : User) : Promise<string>{
    
     let session : InsertSession = {}
@@ -47,8 +51,15 @@ export async function createSession(users : User) : Promise<string>{
         return session.token;
     }
     else
-        return "ERROR"
-        console.error("Token già esistente");
+        throw new Error("Token già esistente")
     
 }
 
+export async function invalidateCookie(cookie:string){
+    await db.delete(sessions).where(eq(sessions.token, cookie));
+    //CANCELLARE IL COOKIE DAL CLIENT
+}
+
+export async function deleteExpiredSessions() {
+    await db.delete(sessions).where(lt(sessions.expires_at, new Date(Date.now())));
+}

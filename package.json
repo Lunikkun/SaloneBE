@@ -7,19 +7,20 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@types/koa": "^2.15.0",
+    "@hono/node-server": "^1.8.2",
+    "@hono/zod-validator": "^0.2.0",
     "argon2": "^0.40.1",
     "drizzle-orm": "^0.29.4",
-    "koa": "^2.15.0",
+    "hono": "^4.1.0",
     "pg": "^8.11.3",
     "tsx": "^4.7.1"
   },
   "name": "salonebe",
   "version": "1.0.0",
   "main": "out/index.js",
-  "type": "module",
   "scripts": {
     "test": "nodemon ./out/src/index.js",
+    "dev": "npx tsx src",
     "generate": "npx drizzle-kit generate:pg",
     "push": "npx drizzle-kit push:pg",
     "studio": "npx drizzle-kit studio"
