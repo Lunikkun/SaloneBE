@@ -11,10 +11,8 @@ import { serve } from "@hono/node-server";
 import { zValidator } from "@hono/zod-validator";
 import z from "zod";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
-import {
-  deleteExpiredSessions,
-  invalidateCookie,
-} from "./db/sessions/handler.js";
+import { deleteExpiredSessions, getUserIDFromToken, invalidateCookie } from "./db/sessions/handler.js";
+import { InsertPrenotazione } from "./db/prenotazioni/schema.js";
 import user from "./userEndpoints.js";
 
 const app = new Hono();
@@ -26,7 +24,7 @@ app.post(
     z.object({
       email: z.string().email(),
       password: z.string(),
-    })
+    }),
   ),
   async (c) => {
     const { email, password } = await c.req.json();
@@ -45,7 +43,7 @@ app.post(
       console.log(error);
       return c.body("JSON.stringify(error)", { status: 500 });
     }
-  }
+  },
 );
 
 app.post("/logout", async (c) => {
@@ -68,7 +66,7 @@ app.post(
       password: z.string().min(8),
       nome: z.string(),
       cognome: z.string(),
-    })
+    }),
   ),
   async (c) => {
     const { email, password, nome, cognome } = await c.req.json();
@@ -76,7 +74,7 @@ app.post(
     if (user == null) return c.body("Mail già presente", { status: 500 });
 
     return c.body(null, { status: 200 });
-  }
+  },
 );
 
 app.post(

@@ -40,10 +40,10 @@ export async function checkPrenotationOverlap(date: Date, durata: number) {
   //SE UNO DEI 2 CAMPI E' VUOTO???
   console.log(precedente + " " + successivo);
 
-  if(successivo === undefined && precedente === undefined){
+  if (successivo === undefined && precedente === undefined) {
     return false;
   }
-  
+
   if (precedente === undefined) {
     if (endDate >= successivo.data_prenotazione) return true;
     else return false;
@@ -52,7 +52,7 @@ export async function checkPrenotationOverlap(date: Date, durata: number) {
     let previousService = (await selectService(precedente.service_id))[0];
     let previousServiceDuration = new Date(
       precedente.data_prenotazione.getTime() +
-        previousService.durata * 1000 * 60
+        previousService.durata * 1000 * 60,
     );
     console.log("DATE: " + date + " " + previousServiceDuration);
     if (date <= previousServiceDuration) return true;
@@ -64,9 +64,11 @@ export async function checkPrenotationOverlap(date: Date, durata: number) {
 
   let previousService = (await selectService(precedente.service_id))[0];
   let previousServiceDuration = new Date(
-    precedente.data_prenotazione.getTime() + previousService.durata * 1000 * 60
+    precedente.data_prenotazione.getTime() + previousService.durata * 1000 * 60,
   );
-  console.log("DATE(entrambi !undefined): " + date + " " + previousServiceDuration);
+  console.log(
+    "DATE(entrambi !undefined): " + date + " " + previousServiceDuration,
+  );
   if (date <= previousServiceDuration) {
     return true;
   } else if (endDate >= successivo.data_prenotazione) {

@@ -53,9 +53,7 @@
         "saloonServices_code_unique": {
           "name": "saloonServices_code_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
+          "columns": ["code"]
         }
       }
     },
@@ -95,9 +93,7 @@
         "users_mail_unique": {
           "name": "users_mail_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "mail"
-          ]
+          "columns": ["mail"]
         }
       }
     }
