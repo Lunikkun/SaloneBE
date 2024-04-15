@@ -1,9 +1,11 @@
-import { desc, eq, gte, lte } from "drizzle-orm";
+import { desc, eq, gte, lt, lte } from "drizzle-orm";
 import { db } from "../../dbConnection";
 import { InsertPrenotazione, Prenotazione, prenotazioni } from "./schema";
-import { SQLiteTextBuilder } from "drizzle-orm/sqlite-core";
 import { selectService } from "../saloonServices/handler";
 
+export async function selectPrenotation(user_id: number) {
+  return await db.select().from(prenotazioni).where(eq(prenotazioni.user_id, user_id));
+}
 export async function createPrenotation(pren: InsertPrenotazione) {
   await db.insert(prenotazioni).values(pren).returning();
 }
@@ -70,4 +72,13 @@ export async function checkPrenotationOverlap(date: Date, durata: number) {
   } else if (endDate >= successivo.data_prenotazione) {
     return true;
   } else return false;
+}
+
+export async function getPrenotationInfo(id:number) {
+  let res = await db.select().from(prenotazioni).where(eq(prenotazioni.id, id));
+  return res[0];
+}
+
+export async function deleteExpiredPrenotations() {
+  return await db.delete(prenotazioni).where(lt(prenotazioni.data_prenotazione, new Date(Date.now())));
 }

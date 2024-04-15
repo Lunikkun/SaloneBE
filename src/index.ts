@@ -5,15 +5,16 @@ import {
   selectUser,
   updateUser,
 } from "./db/users/handler.js";
-import { InsertUser } from "./db/users/schema.js";
 import { config } from "dotenv";
 import { Hono } from "Hono";
 import { serve } from "@hono/node-server";
 import { zValidator } from "@hono/zod-validator";
 import z from "zod";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
-import { deleteExpiredSessions, getUserIDFromToken, invalidateCookie } from "./db/sessions/handler.js";
-import { InsertPrenotazione } from "./db/prenotazioni/schema.js";
+import {
+  deleteExpiredSessions,
+  invalidateCookie,
+} from "./db/sessions/handler.js";
 import user from "./userEndpoints.js";
 
 const app = new Hono();
@@ -32,9 +33,9 @@ app.post(
     try {
       const data = await login(email, password);
       console.log(data);
-      if(data["result"] === false){
+      if (data["result"] === false) {
         c.status(400);
-        return c.body(data.description+" "+data.result);
+        return c.body(data.description + " " + data.result);
       }
       const token: string = data["session"];
       setCookie(c, "ssid", token, { httpOnly: true });
@@ -55,6 +56,7 @@ app.post("/logout", async (c) => {
   deleteCookie(c, "ssid");
   await invalidateCookie(cookie);
   await deleteExpiredSessions();
+  return c.body("SUCCESFULLY LOGGED OUT", {status:200});
 });
 
 app.post(
@@ -74,6 +76,14 @@ app.post(
     if (user == null) return c.body("Mail già presente", { status: 500 });
 
     return c.body(null, { status: 200 });
+  }
+);
+
+app.post(
+  "/recupero_password",
+  zValidator("json", z.object({ email: z.string().email() })),
+  async (c) => {
+    console.log(c.req.json());
   }
 );
 app.route("/user", user);

@@ -1,5 +1,4 @@
-import { InsertService } from './db/saloonServices/schema.js';
-import { insertService, selectService } from "./db/saloonServices/handler.js";
+import { insertService } from "./db/saloonServices/handler.js";
 import { insertUser } from './db/users/handler.js';
 
  (async()=>{
@@ -12,5 +11,5 @@ import { insertUser } from './db/users/handler.js';
     await insertService({durata:30,nome:"Taglio Lungo", prezzo:"35.00", descrizione:"taglio di capelli lungo"});
     await insertService({durata:15,nome:"Barba + Taglio Corto", prezzo:"25.00", descrizione:"taglio di capelli con taglio barba"});    
     await insertService({durata:45,nome:"Solo Barba", prezzo:"10.00", descrizione:"rifinitura barba"});
-    //let res = await selectService(0);
+
 })();
