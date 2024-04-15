@@ -21,39 +21,18 @@ import {
   selectPrenotation,
   selectPreviousPrenotation,
 } from "./db/prenotazioni/handler";
-<<<<<<< HEAD
-import {
-  deleteExpiredSessions,
-  getUserIDFromToken,
-} from "./db/sessions/handler";
-=======
 import { getUserFromToken, getUserIDFromToken } from "./db/sessions/handler";
->>>>>>> 26f3b7f5bfc281558f03206eea62560e650aeaec
 import { InsertPrenotazione, Prenotazione } from "./db/prenotazioni/schema";
 import { selectService } from "./db/saloonServices/handler";
 import { ne } from "drizzle-orm";
 import { serve } from "@hono/node-server";
-<<<<<<< HEAD
-import { use } from "hono/jsx";
-=======
 import { createMiddleware } from "hono/factory";
->>>>>>> 26f3b7f5bfc281558f03206eea62560e650aeaec
 
 let user = new Hono();
 declare module "hono" {
   interface ContextVariableMap {
     user: User;
   }
-<<<<<<< HEAD
-  let uid = await getUserIDFromToken(cookie);
-  if (uid === null || uid === undefined) {
-    return c.body("TOKEN INESISTENTE", { status: 404 });
-  }
-  UserID = uid;
-  console.log("va");
-  await next();
-});
-=======
 }
 user.use(
   "/*",
@@ -68,7 +47,6 @@ user.use(
     await next();
   }),
 );
->>>>>>> 26f3b7f5bfc281558f03206eea62560e650aeaec
 
 user.post(
   "/prenota",
@@ -90,22 +68,6 @@ user.post(
     }
     let serviceInfo: Service = (await selectService(id_servizio))[0];
     let overlap = await checkPrenotationOverlap(
-<<<<<<< HEAD
-      data_prenotazione,
-      serviceInfo["durata"] * 1000 * 60
-    );
-    if (overlap) return c.body("Data già prenotata", { status: 500 });
-    else {
-      let prenotazione: InsertPrenotazione = {
-        data_prenotazione,
-        user_id: UserID,
-        service_id: id_servizio,
-      };
-      createPrenotation(prenotazione);
-      return c.body("Prenotazione effettuata", { status: 200 });
-    }
-  }
-=======
       data_pren,
       serviceInfo["durata"] * 1000 * 60,
     );
@@ -121,7 +83,6 @@ user.post(
       return c.body("Prenotazione effettuata", { status: 200 });
     }
   },
->>>>>>> 26f3b7f5bfc281558f03206eea62560e650aeaec
 );
 
 user.post("/annulla/:id", async (c) => {
@@ -130,7 +91,7 @@ user.post("/annulla/:id", async (c) => {
   let prenotationInfo = await getPrenotationInfo(parseInt(id));
   if (prenotationInfo === undefined) {
     return c.body("ID NON ESISTENTE", { status: 404 });
-  } else if (prenotationInfo["user_id"] != UserID) {
+  } else if (prenotationInfo["user_id"] != c.get("user").id) {
     return c.body("PRENOTAZIONE NON APPARTENTE ALL'UTENTE", { status: 500 });
   } else {
     await deleteExpiredPrenotations();
@@ -140,8 +101,8 @@ user.post("/annulla/:id", async (c) => {
 });
 
 user.get("/prenotazioni", async (c) => {
-  console.log(UserID);
-  let prenotations = await selectPrenotation(UserID);
+  console.log(c.get("user").id);
+  let prenotations = await selectPrenotation(c.get("user").id);
   return c.body(JSON.stringify(prenotations), { status: 200 });
 });
 export default user;
