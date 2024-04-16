@@ -11,7 +11,7 @@ export function generateToken(): string {
   const array = new Uint8Array(256);
   let token: string = "";
   const dict =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?!";
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@!";
   crypto.getRandomValues(array);
   array.forEach((elem) => {
     let value = Math.floor(elem / 4);

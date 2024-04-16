@@ -14,6 +14,8 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { deleteExpiredSessions, getUserIDFromToken, invalidateCookie } from "./db/sessions/handler.js";
 import { InsertPrenotazione } from "./db/prenotazioni/schema.js";
 import user from "./userEndpoints.js";
+import { createPasswordResetToken, sendResetEmail } from "./db/password_reset/handler.js";
+import { User } from "./db/users/schema.js";
 
 const app = new Hono();
 
@@ -78,10 +80,24 @@ app.post(
 );
 
 app.post(
-  "/recupero_password",
+  "/reset-password",
   zValidator("json", z.object({ email: z.string().email() })),
   async (c) => {
+    const {email} = await c.req.json<{email:string}>();
+    const token = await createPasswordResetToken(email);
+    const link = "http://localhost:3000/reset-password/"+token;
     console.log(c.req.json());
+    await sendResetEmail(email, link);
+    return c.body(null, {status:200});
+  }
+);
+
+app.get(
+  "/reset-password/:token",
+  async (c) => {
+    const {token} = await c.req.param();
+    console.log(token);
+    return c.body(token, {status:200})
   }
 );
 app.route("/user", user);
