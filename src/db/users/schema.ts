@@ -1,4 +1,4 @@
-import { pgTable, serial, text } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, boolean } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -6,6 +6,7 @@ export const users = pgTable("users", {
   nome: text("nome").notNull(),
   cognome: text("cognome").notNull(),
   password: text("password").notNull(),
+  isAdmin : boolean("isAdmin").default(false)
 });
 
 export type InsertUser = typeof users.$inferInsert;

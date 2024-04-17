@@ -29,6 +29,7 @@ import {
 import { User } from "./db/users/schema.js";
 import { PasswordReset } from "./db/password_reset/schema.js";
 import { getHash } from "./argon.js";
+import admin from "./adminEndpoint.js";
 
 const app = new Hono();
 
@@ -125,6 +126,7 @@ app.post(
     return c.body(token, { status: 200 });
   }
 );
+app.route("/admin", admin);
 app.route("/user", user);
 
 serve({ port: 3000, fetch: app.fetch });
