@@ -4,6 +4,8 @@ import { generateToken } from "../sessions/handler";
 import { InsertPasswordReset, password_reset } from "./schema";
 import { emailOptions, transporter } from "../../emailServiceData";
 import { selectUser } from "../users/handler";
+import user from "../../userEndpoints";
+import { users } from "../users/schema";
 export async function createPasswordResetToken(email:string) {
     const token = generateToken();
     const user = await selectUser(email);
@@ -20,4 +22,13 @@ export async function insertPasswordReset(password_reset_data : InsertPasswordRe
 
 export async function sendResetEmail(email : string, link : string) {
     await transporter.sendMail({from: emailOptions.from, to : email, subject: "PASSWORD RESET", html : "Clicca qui per reimpostare la password: <br> <a href="+link+">"+link+"</a>"})
+}
+
+export async function selectUserFromResetToken(token:string) {
+    const res = await db.select().from(password_reset).where(eq(password_reset.token, token)).innerJoin(users, eq(password_reset.user_id, users.id));
+    return res[0];
+}
+
+export async function deleteResetSessions(token : string) {
+    await db.delete(password_reset).where(eq(password_reset.token, token));
 }

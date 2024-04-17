@@ -20,6 +20,10 @@ export async function selectUser(mail: Required<string>): Promise<User> {
   let _result = await db.select().from(users).where(eq(users.mail, mail));
   return _result[0];
 }
+export async function selectUserFromID(user_id: Required<number>): Promise<User> {
+  let _result = await db.select().from(users).where(eq(users.id, user_id))
+  return _result[0];
+}
 //SELECT MULTIPLE USERS
 export async function selectAllUsers(): Promise<User[]> {
   let _result = await db.select().from(users);

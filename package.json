@@ -25,7 +25,8 @@
     "dev": "npx tsx src",
     "generate": "npx drizzle-kit generate:pg",
     "push": "npx drizzle-kit push:pg",
-    "studio": "npx drizzle-kit studio"
+    "studio": "npx drizzle-kit studio",
+    "populate" : "npx tsx src/populate.ts"
   },
   "author": "",
   "license": "ISC",
