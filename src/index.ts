@@ -21,6 +21,8 @@ import { InsertPrenotazione } from "./db/prenotazioni/schema.js";
 import user from "./userEndpoints.js";
 import {
   createPasswordResetToken,
+  deleteExpiredResetSessions,
+  deleteResetSessions,
   selectUserFromResetToken,
   sendResetEmail,
 } from "./db/password_reset/handler.js";
@@ -110,13 +112,16 @@ app.get("/reset-password/:token", async (c) => {
 });
 app.post(
   "/reset-password-apply/:token",
-  zValidator("json", z.object({ password: z.string() })),
+  zValidator("json", z.object({ password: z.string().min(8) })),
   async (c) => {
     const { token } = c.req.param();
     let { password } = await c.req.json<{ password: string }>();
     const passwordResetSession = await selectUserFromResetToken(token);
+    if(passwordResetSession === undefined) return c.body(null, {status: 404});
     password = await getHash(password);
     await updateUser(passwordResetSession["users"].mail, { password });
+    await deleteResetSessions(passwordResetSession["users"].id);
+    await deleteExpiredResetSessions();
     return c.body(token, { status: 200 });
   }
 );

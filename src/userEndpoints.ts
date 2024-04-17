@@ -27,6 +27,7 @@ import { selectService } from "./db/saloonServices/handler";
 import { ne } from "drizzle-orm";
 import { serve } from "@hono/node-server";
 import { createMiddleware } from "hono/factory";
+import { emailOptions, transporter } from "./emailServiceData";
 
 let user = new Hono();
 declare module "hono" {
@@ -66,7 +67,7 @@ user.post(
     if (data_pren.getTime() < Date.now()) {
       return c.body("INVALID DATE", { status: 400 });
     }
-    let serviceInfo: Service = (await selectService(id_servizio))[0];
+    let serviceInfo: Service = (await selectService(id_servizio));
     let overlap = await checkPrenotationOverlap(
       data_pren,
       serviceInfo["durata"] * 1000 * 60,
@@ -80,6 +81,12 @@ user.post(
         service_id: id_servizio,
       };
       await createPrenotation(prenotazione);
+      transporter.sendMail({from: emailOptions.from, 
+                            to: user.mail, 
+                            subject: "Conferma prenotazione",
+                            html: "Prenotazione effettuata a nome di: "+user.cognome+" "+user.nome
+                                  +"<br> Servizio: "+serviceInfo["nome"]
+                                +"<br> In data: "+ data_pren});
       return c.body("Prenotazione effettuata", { status: 200 });
     }
   },
@@ -87,8 +94,9 @@ user.post(
 
 user.post("/annulla/:id", async (c) => {
   let { id } = c.req.param();
-
+  let user = c.get("user");
   let prenotationInfo = await getPrenotationInfo(parseInt(id));
+  let serviceInfo = await selectService(prenotationInfo.service_id);
   if (prenotationInfo === undefined) {
     return c.body("ID NON ESISTENTE", { status: 404 });
   } else if (prenotationInfo["user_id"] != c.get("user").id) {
@@ -96,6 +104,13 @@ user.post("/annulla/:id", async (c) => {
   } else {
     await deleteExpiredPrenotations();
     await deletePrenotation(prenotationInfo);
+    transporter.sendMail({from: emailOptions.from, 
+      to: user.mail, 
+      subject: "Conferma annullamento",
+      html: "Prenotazione per: "+user.cognome+" "+user.nome
+            +"<br> Servizio: "+serviceInfo.nome
+          +"<br> In data: "+ prenotationInfo.data_prenotazione
+          +"Annullata con successo"});
     return c.body("PRENOTATIONE ANNULLATA CON SUCCESSO", { status: 200 });
   }
 });

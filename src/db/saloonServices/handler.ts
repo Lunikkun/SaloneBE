@@ -7,11 +7,12 @@ export async function insertService(service: InsertService) {
 }
 
 export async function selectService(id: number) {
-  return await db
+  let res = await db
     .select()
     .from(saloonServices)
     .where(eq(saloonServices.id, id));
-}
+    return res[0]
+  }
 
 export async function selectAllServices() {
   return await db.select().from(saloonServices);

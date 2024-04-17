@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import { db } from "../../dbConnection";
 import { generateToken } from "../sessions/handler";
 import { InsertPasswordReset, password_reset } from "./schema";
@@ -29,6 +29,11 @@ export async function selectUserFromResetToken(token:string) {
     return res[0];
 }
 
-export async function deleteResetSessions(token : string) {
-    await db.delete(password_reset).where(eq(password_reset.token, token));
+export async function deleteResetSessions(user_id : number) {
+    await db.delete(password_reset).where(eq(password_reset.user_id, user_id));
+}
+
+
+export async function deleteExpiredResetSessions() {
+    await db.delete(password_reset).where(lt(password_reset.expires_at, new Date(Date.now())));
 }
