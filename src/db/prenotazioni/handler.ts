@@ -49,7 +49,7 @@ export async function checkPrenotationOverlap(date: Date, durata: number) {
     else return false;
   }
   if (successivo === undefined) {
-    let previousService = (await selectService(precedente.service_id))[0];
+    let previousService = (await selectService(precedente.service_id));
     let previousServiceDuration = new Date(
       precedente.data_prenotazione.getTime() +
         previousService.durata * 1000 * 60,
@@ -62,7 +62,7 @@ export async function checkPrenotationOverlap(date: Date, durata: number) {
   console.log(precedente.data_prenotazione);
   console.log(successivo.data_prenotazione);
 
-  let previousService = (await selectService(precedente.service_id))[0];
+  let previousService = (await selectService(precedente.service_id));
   let previousServiceDuration = new Date(
     precedente.data_prenotazione.getTime() + previousService.durata * 1000 * 60,
   );
@@ -83,4 +83,8 @@ export async function getPrenotationInfo(id:number) {
 
 export async function deleteExpiredPrenotations() {
   return await db.delete(prenotazioni).where(lt(prenotazioni.data_prenotazione, new Date(Date.now())));
+}
+
+export async function updatePrenotation(id:number, newDate : Date) {
+  await db.update(prenotazioni).set({data_prenotazione : newDate})
 }

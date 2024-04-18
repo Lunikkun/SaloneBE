@@ -8,7 +8,7 @@ import {
   getSignedCookie,
   setCookie,
   setSignedCookie,
-  deleteCookie, 
+  deleteCookie,
 } from "hono/cookie";
 import z from "zod";
 import {
@@ -46,7 +46,7 @@ user.use(
 
     c.set("user", user);
     await next();
-  }),
+  })
 );
 
 user.post(
@@ -56,7 +56,7 @@ user.post(
     z.object({
       data_prenotazione: z.string(),
       id_servizio: z.number(),
-    }),
+    })
   ),
   async (c) => {
     let { id_servizio, data_prenotazione } = await c.req.json<{
@@ -67,10 +67,10 @@ user.post(
     if (data_pren.getTime() < Date.now()) {
       return c.body("INVALID DATE", { status: 400 });
     }
-    let serviceInfo: Service = (await selectService(id_servizio));
+    let serviceInfo: Service = await selectService(id_servizio);
     let overlap = await checkPrenotationOverlap(
       data_pren,
-      serviceInfo["durata"] * 1000 * 60,
+      serviceInfo["durata"] * 1000 * 60
     );
     if (overlap) return c.body("Data già prenotata", { status: 500 });
     else {
@@ -81,21 +81,29 @@ user.post(
         service_id: id_servizio,
       };
       await createPrenotation(prenotazione);
-      transporter.sendMail({from: emailOptions.from, 
-                            to: user.mail, 
-                            subject: "Conferma prenotazione",
-                            html: "Prenotazione effettuata a nome di: "+user.cognome+" "+user.nome
-                                  +"<br> Servizio: "+serviceInfo["nome"]
-                                +"<br> In data: "+ data_pren});
+      transporter.sendMail({
+        from: emailOptions.from,
+        to: user.mail,
+        subject: "Conferma prenotazione",
+        html:
+          "Prenotazione effettuata a nome di: " +
+          user.cognome +
+          " " +
+          user.nome +
+          "<br> Servizio: " +
+          serviceInfo["nome"] +
+          "<br> In data: " +
+          data_pren
+      });
       return c.body("Prenotazione effettuata", { status: 200 });
     }
-  },
+  }
 );
 
 user.post("/annulla/:id", async (c) => {
   let { id } = c.req.param();
   let user = c.get("user");
-  let prenotationInfo = await getPrenotationInfo(parseInt(id));
+let prenotationInfo = await getPrenotationInfo(parseInt(id));
   let serviceInfo = await selectService(prenotationInfo.service_id);
   if (prenotationInfo === undefined) {
     return c.body("ID NON ESISTENTE", { status: 404 });
@@ -104,13 +112,21 @@ user.post("/annulla/:id", async (c) => {
   } else {
     await deleteExpiredPrenotations();
     await deletePrenotation(prenotationInfo);
-    transporter.sendMail({from: emailOptions.from, 
-      to: user.mail, 
+    transporter.sendMail({
+      from: emailOptions.from,
+      to: user.mail,
       subject: "Conferma annullamento",
-      html: "Prenotazione per: "+user.cognome+" "+user.nome
-            +"<br> Servizio: "+serviceInfo.nome
-          +"<br> In data: "+ prenotationInfo.data_prenotazione
-          +"Annullata con successo"});
+      html:
+        "Prenotazione per: " +
+        user.cognome +
+        " " +
+        user.nome +
+        "<br> Servizio: " +
+        serviceInfo.nome +
+        "<br> In data: " +
+        prenotationInfo.data_prenotazione +
+        "Annullata con successo",
+    });
     return c.body("PRENOTATIONE ANNULLATA CON SUCCESSO", { status: 200 });
   }
 });
