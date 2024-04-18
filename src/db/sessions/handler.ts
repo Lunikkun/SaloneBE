@@ -32,7 +32,7 @@ export async function isPresent(token: string): Promise<boolean> {
 }
 
 export async function getUserIDFromToken(
-  cookie: string,
+  cookie: string
 ): Promise<number | null> {
   let res = await db.select().from(sessions).where(eq(sessions.token, cookie));
   return res[0].user_id;
@@ -43,9 +43,9 @@ export async function getUserFromToken(token: string) {
       user: users,
     })
     .from(users)
-    .innerJoin(sessions, eq(users.id, sessions.user_id))
-    .where(eq(sessions.token, token));
-
+    .where(eq(sessions.token, token))
+    .innerJoin(sessions, eq(users.id, sessions.user_id));
+  console.log(res);
   if (res.length === 1) return res[0].user;
   else return null;
 }

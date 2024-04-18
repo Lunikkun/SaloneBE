@@ -86,5 +86,5 @@ export async function deleteExpiredPrenotations() {
 }
 
 export async function updatePrenotation(id:number, newDate : Date) {
-  await db.update(prenotazioni).set({data_prenotazione : newDate})
+  await db.update(prenotazioni).set({data_prenotazione : newDate}).where(eq(prenotazioni.id, id)).returning();
 }

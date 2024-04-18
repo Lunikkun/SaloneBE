@@ -26,10 +26,12 @@ declare module "hono" {
 admin.use(
   "/*",
   createMiddleware(async (c, next) => {
+    
     const auth_cookie = getCookie(c, "ssid");
     if (!auth_cookie) return c.body("Unauthorized", { status: 401 });
-
+    console.log(auth_cookie);
     const adminUser = await getUserFromToken(auth_cookie);
+    console.log(adminUser)
     if (!adminUser || !adminUser.isAdmin)
       return c.body("Unauthorized, not Admin", { status: 401 });
 
@@ -39,7 +41,8 @@ admin.use(
 );
 
 admin.get("/", async (c) => {
-  console.log(c.get("adminUser"));
+  let adminData = c.get("adminUser");
+  return c.body(adminData.id+" "+adminData.isAdmin, {status : 200});
 });
 
 //UN ADMIN LOGGATO CREA UN ALTRO ACCOUNT ADMIN
@@ -63,6 +66,16 @@ admin.post(
       cognome,
       isAdmin: true,
     });
+    const userData = await selectUser(email);
+    transporter.sendMail({
+      from: emailOptions.from,
+      to: userData.mail,
+      subject: "Aggiunta STAFF",
+      html:
+        userData.cognome +
+        " " +
+        userData.nome + " Sei appena stato promosso ad admin"
+    });
     if (user == null) return c.body("Mail già presente", { status: 500 });
     return c.body(null, { status: 200 });
   }
@@ -72,22 +85,22 @@ admin.post(
   "/reschedule",
   zValidator(
     "json",
-    z.object({ pren_id: z.number(), new_date: z.string().datetime() })
+    z.object({ id_prenotazione: z.number(), data_prenotazione: z.string().datetime() })
   ),
   async (c) => {
-    const { pren_id, new_date } = await c.req.json<{
-      pren_id: number;
-      new_date: string;
+    const { id_prenotazione, data_prenotazione } = await c.req.json<{
+      id_prenotazione: number;
+      data_prenotazione: string;
     }>();
-    let prenotationInfo = await getPrenotationInfo(pren_id);
+    let prenotationInfo = await getPrenotationInfo(id_prenotazione);
     const userData = await selectUserFromID(prenotationInfo.user_id);
     const serviceInfo = await selectService(prenotationInfo["service_id"]);
     let overlap = await checkPrenotationOverlap(
-      new Date(new_date),
+      new Date(data_prenotazione),
       serviceInfo["durata"]
     );
-    if (overlap) {
-      await updatePrenotation(pren_id, new Date(new_date))
+    if (!overlap) {
+      await updatePrenotation(id_prenotazione, new Date(data_prenotazione))
       transporter.sendMail({
         from: emailOptions.from,
         to: userData.mail,
@@ -100,11 +113,11 @@ admin.post(
           "<br> Servizio: " +
           serviceInfo["nome"] +
           "<br> In data: " +
-          new_date,
+          data_prenotazione
       });
-      return c.body("IMPOSSIBILE PRENOTARE DATA", { status: 500 });
-    } else {
       return c.body("DATA MODIFICATA", { status: 200 });
+    } else {
+      return c.body("IMPOSSIBILE PRENOTARE DATA", { status: 500 });
     }
   }
 );

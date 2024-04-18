@@ -67,6 +67,8 @@ app.post("/logout", async (c) => {
   if (!cookie) {
     throw new Error("Cookie non presente");
   }
+  c.set("adminUser", {id: -1, cognome:"", nome:"", mail:"", password: "", isAdmin:false});
+  c.set("user", {id: -1, cognome:"", nome:"", mail:"", password: "", isAdmin:false});
   deleteCookie(c, "ssid");
   await invalidateCookie(cookie);
   await deleteExpiredSessions();
