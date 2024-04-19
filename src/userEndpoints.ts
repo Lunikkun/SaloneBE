@@ -28,6 +28,8 @@ import { ne } from "drizzle-orm";
 import { serve } from "@hono/node-server";
 import { createMiddleware } from "hono/factory";
 import { emailOptions, transporter } from "./emailServiceData";
+import { InsertRecensione } from "./db/recensioni/schema";
+import { insertRecensione } from "./db/recensioni/handler";
 
 let user = new Hono();
 declare module "hono" {
@@ -93,7 +95,7 @@ user.post(
           "<br> Servizio: " +
           serviceInfo["nome"] +
           "<br> In data: " +
-          data_pren
+          data_pren,
       });
       return c.body("Prenotazione effettuata", { status: 200 });
     }
@@ -103,7 +105,7 @@ user.post(
 user.post("/annulla/:id", async (c) => {
   let { id } = c.req.param();
   let user = c.get("user");
-let prenotationInfo = await getPrenotationInfo(parseInt(id));
+  let prenotationInfo = await getPrenotationInfo(parseInt(id));
   let serviceInfo = await selectService(prenotationInfo.service_id);
   if (prenotationInfo === undefined) {
     return c.body("ID NON ESISTENTE", { status: 404 });
@@ -131,6 +133,21 @@ let prenotationInfo = await getPrenotationInfo(parseInt(id));
   }
 });
 
+user.post(
+  "/recensione",
+  zValidator("json", z.object({ voto: z.number(), recensione: z.string() })),
+  async (c) => {
+    const {voto, recensione} = await c.req.json<{voto:number, recensione:string}>();
+    const userReview : InsertRecensione = {
+      id_utente : c.get("user").id,
+      data_recensione : new Date(Date.now()),
+      voto,
+      recensione
+    }
+    await insertRecensione(userReview);
+    return c.body(null, {status:200})
+  }
+);
 user.get("/prenotazioni", async (c) => {
   console.log(c.get("user").id);
   let prenotations = await selectPrenotation(c.get("user").id);

@@ -45,7 +45,7 @@ export async function getUserFromToken(token: string) {
     .from(users)
     .where(eq(sessions.token, token))
     .innerJoin(sessions, eq(users.id, sessions.user_id));
-  console.log(res);
+  //console.log(res);
   if (res.length === 1) return res[0].user;
   else return null;
 }

@@ -16,6 +16,7 @@ import {
 } from "./db/prenotazioni/handler";
 import { selectService } from "./db/saloonServices/handler";
 import { emailOptions, transporter } from "./emailServiceData";
+import { selectAllRecensioni } from "./db/recensioni/handler";
 
 let admin = new Hono();
 declare module "hono" {
@@ -26,12 +27,11 @@ declare module "hono" {
 admin.use(
   "/*",
   createMiddleware(async (c, next) => {
-    
     const auth_cookie = getCookie(c, "ssid");
     if (!auth_cookie) return c.body("Unauthorized", { status: 401 });
     console.log(auth_cookie);
     const adminUser = await getUserFromToken(auth_cookie);
-    console.log(adminUser)
+    console.log(adminUser);
     if (!adminUser || !adminUser.isAdmin)
       return c.body("Unauthorized, not Admin", { status: 401 });
 
@@ -42,7 +42,7 @@ admin.use(
 
 admin.get("/", async (c) => {
   let adminData = c.get("adminUser");
-  return c.body(adminData.id+" "+adminData.isAdmin, {status : 200});
+  return c.body(adminData.id + " " + adminData.isAdmin, { status: 200 });
 });
 
 //UN ADMIN LOGGATO CREA UN ALTRO ACCOUNT ADMIN
@@ -74,7 +74,8 @@ admin.post(
       html:
         userData.cognome +
         " " +
-        userData.nome + " Sei appena stato promosso ad admin"
+        userData.nome +
+        " Sei appena stato promosso ad admin",
     });
     if (user == null) return c.body("Mail già presente", { status: 500 });
     return c.body(null, { status: 200 });
@@ -85,7 +86,10 @@ admin.post(
   "/reschedule",
   zValidator(
     "json",
-    z.object({ id_prenotazione: z.number(), data_prenotazione: z.string().datetime() })
+    z.object({
+      id_prenotazione: z.number(),
+      data_prenotazione: z.string().datetime(),
+    })
   ),
   async (c) => {
     const { id_prenotazione, data_prenotazione } = await c.req.json<{
@@ -100,20 +104,22 @@ admin.post(
       serviceInfo["durata"]
     );
     if (!overlap) {
-      await updatePrenotation(id_prenotazione, new Date(data_prenotazione))
+      await updatePrenotation(id_prenotazione, new Date(data_prenotazione));
       transporter.sendMail({
         from: emailOptions.from,
         to: userData.mail,
         subject: "CONFERMA MODIFICA ORARIO",
         html:
-          "Prenotazione ID:"+ prenotationInfo.id+" a nome di: " +
+          "Prenotazione ID:" +
+          prenotationInfo.id +
+          " a nome di: " +
           userData.cognome +
           " " +
           userData.nome +
           "<br> Servizio: " +
           serviceInfo["nome"] +
           "<br> In data: " +
-          data_prenotazione
+          data_prenotazione,
       });
       return c.body("DATA MODIFICATA", { status: 200 });
     } else {
@@ -129,8 +135,7 @@ admin.post("/annulla/:id", async (c) => {
   const user = await selectUserFromID(prenotationInfo["id"]);
   if (prenotationInfo === undefined) {
     return c.body("ID NON ESISTENTE", { status: 404 });
-  }
-  else {
+  } else {
     await deleteExpiredPrenotations();
     await deletePrenotation(prenotationInfo);
     transporter.sendMail({
@@ -152,4 +157,12 @@ admin.post("/annulla/:id", async (c) => {
   }
 });
 
+admin.get("/recensioni", async (c) => {
+  try {
+    let reviews = await selectAllRecensioni();
+    return c.body(JSON.stringify(reviews), { status: 200 });
+  } catch (error) {
+    return c.body(JSON.stringify(error));
+  }
+});
 export default admin;

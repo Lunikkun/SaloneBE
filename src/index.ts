@@ -57,7 +57,7 @@ app.post(
       return c.body("Succesful");
     } catch (error) {
       console.log(error);
-      return c.body("JSON.stringify(error)", { status: 500 });
+      return c.body(JSON.stringify(error), { status: 500 });
     }
   }
 );
