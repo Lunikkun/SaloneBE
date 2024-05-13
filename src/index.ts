@@ -30,6 +30,7 @@ import { User } from "./db/users/schema.js";
 import { PasswordReset } from "./db/password_reset/schema.js";
 import { getHash } from "./argon.js";
 import admin from "./adminEndpoint.js";
+import busboy from "busboy";
 
 const app = new Hono();
 
@@ -67,8 +68,8 @@ app.post("/logout", async (c) => {
   if (!cookie) {
     throw new Error("Cookie non presente");
   }
-  c.set("adminUser", {id: -1, cognome:"", nome:"", mail:"", password: "", isAdmin:false});
-  c.set("user", {id: -1, cognome:"", nome:"", mail:"", password: "", isAdmin:false});
+  c.set("adminUser", {id: -1, cognome:"", nome:"", mail:"", password: "", isAdmin:false, isMale:false, creation_date:null, immagine:""});
+  c.set("user", {id: -1, cognome:"", nome:"", mail:"", password: "", immagine : "", isMale : false, isAdmin:false, creation_date: null});
   deleteCookie(c, "ssid");
   await invalidateCookie(cookie);
   await deleteExpiredSessions();
@@ -84,13 +85,16 @@ app.post(
       password: z.string().min(8),
       nome: z.string(),
       cognome: z.string(),
+      isMale : z.boolean(),
+      immagine : z.string()
     })
   ),
   async (c) => {
-    const { email, password, nome, cognome } = await c.req.json();
-    let user = await insertUser({ mail: email, password, nome, cognome });
+    const data = await c.req.json<{email: string, password: string, nome:string, cognome:string, isMale:boolean, immagine:string}>();
+    const { email, nome, cognome, password, isMale, immagine } = data;
+    console.log(email, nome);
+    let user = await insertUser({ mail: email, password, nome, cognome, isMale, immagine });
     if (user == null) return c.body("Mail già presente", { status: 500 });
-
     return c.body(null, { status: 200 });
   }
 );

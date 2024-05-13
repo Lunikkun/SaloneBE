@@ -14,6 +14,7 @@ export async function insertUser(u: InsertUser) {
     return null;
   }
   return await db.insert(users).values(u).returning();
+  
 }
 //SELECT SINGLE USER
 export async function selectUser(mail: Required<string>): Promise<User> {

@@ -3,6 +3,7 @@ import { integer } from "drizzle-orm/pg-core";
 import { pgTable, serial } from "drizzle-orm/pg-core";
 import { saloonServices } from "../saloonServices/schema";
 import { users } from "../users/schema";
+import { text } from "drizzle-orm/pg-core";
 
 export const prenotazioni = pgTable("prenotazioni", {
   id: serial("id").primaryKey(),
@@ -13,6 +14,7 @@ export const prenotazioni = pgTable("prenotazioni", {
     .notNull()
     .references(() => saloonServices.id),
   data_prenotazione: timestamp("data_pren", { withTimezone: false }).notNull(),
+  nota : text("nota").default("")
 });
 
 export type Prenotazione = typeof prenotazioni.$inferSelect;
