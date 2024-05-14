@@ -31,6 +31,7 @@ import { PasswordReset } from "./db/password_reset/schema.js";
 import { getHash } from "./argon.js";
 import admin from "./adminEndpoint.js";
 import busboy from "busboy";
+import { S3sendFile } from "../awsConnection.js";
 
 const app = new Hono();
 
@@ -136,11 +137,13 @@ app.post("/registerform", async (c) => {
   const password = data.password as string;
   const nome = data.nome as string;
   const cognome = data.cognome as string;
-  const gender = data.isMale as string;
+  const gender = data.gender as string;
   const immagine = data.immagine as File;
   //DA INSERIRE SALVATAGGIO SU AWS S3 IMMAGINE E DARE UN ID PER IL RETRIEVE
-    console.log(mail, immagine, nome, cognome, password, gender); 
+  
+  console.log(mail, immagine, nome, cognome, password, gender); 
   let user = await insertUser({ mail, password, nome, cognome, gender });
+  await S3sendFile(immagine.name, immagine);
     if (user == null) return c.body("Mail già presente", { status: 500 });
   return c.body(null, { status: 200 });
 });

@@ -8,6 +8,8 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.575.0",
+    "@aws-sdk/credential-providers": "^3.575.0",
     "@hono/node-server": "^1.8.2",
     "@hono/zod-validator": "^0.2.0",
     "@types/nodemailer": "^6.4.14",
@@ -15,7 +17,9 @@
     "busboy": "^1.6.0",
     "drizzle-orm": "^0.29.4",
     "hono": "^4.1.0",
+    "i": "^0.3.7",
     "nodemailer": "^6.9.13",
+    "npm": "^10.7.0",
     "pg": "^8.11.3",
     "tsx": "^4.7.1"
   },
