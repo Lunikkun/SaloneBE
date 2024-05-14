@@ -138,6 +138,7 @@ app.post("/registerform", async (c) => {
   const cognome = data.cognome as string;
   const gender = data.isMale as string;
   const immagine = data.immagine as File;
+  //DA INSERIRE SALVATAGGIO SU AWS S3 IMMAGINE E DARE UN ID PER IL RETRIEVE
     console.log(mail, immagine, nome, cognome, password, gender); 
   let user = await insertUser({ mail, password, nome, cognome, gender });
     if (user == null) return c.body("Mail già presente", { status: 500 });
