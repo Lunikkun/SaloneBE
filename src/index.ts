@@ -95,6 +95,7 @@ app.post("/logout", async (c) => {
   return c.body("SUCCESFULLY LOGGED OUT", { status: 200 });
 });
 
+/*
 app.post(
   "/register",
   zValidator(
@@ -129,9 +130,11 @@ app.post(
     return c.body(null, { status: 200 });
   }
 );
+*/
+
 app.post("/registerform", async (c) => {
   const data = await c.req.parseBody();
-  console.log(data['email']+" "+data["immagine"]);
+  //console.log(data['email']+" "+data["immagine"]);
   
   const mail = data.email as string;
   const password = data.password as string;
@@ -142,8 +145,7 @@ app.post("/registerform", async (c) => {
   //DA INSERIRE SALVATAGGIO SU AWS S3 IMMAGINE E DARE UN ID PER IL RETRIEVE
   
   console.log(mail, immagine, nome, cognome, password, gender); 
-  let user = await insertUser({ mail, password, nome, cognome, gender });
-  await S3sendFile(immagine.name, immagine);
+  let user = await insertUser({ mail, password, nome, cognome, gender }, immagine);
     if (user == null) return c.body("Mail già presente", { status: 500 });
   return c.body(null, { status: 200 });
 });

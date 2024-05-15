@@ -4,15 +4,17 @@ import { InsertUser, User, users } from "./schema.js";
 import { QueryResult } from "pg";
 import { getHash, verifyHash } from "../../argon.js";
 import { createSession } from "../sessions/handler.ts";
+import { S3sendFile } from "../../../awsConnection.ts";
 
 //INSERT A USER INTO DB
-export async function insertUser(u: InsertUser) {
+export async function insertUser(u: InsertUser, img : File) {
   let altreadyExist = await selectUser(u["mail"]);
   u.password = await getHash(u.password);
   console.log(altreadyExist);
   if (altreadyExist) {
     return null;
   }
+  await S3sendFile(img.name, img);
   return await db.insert(users).values(u).returning();
   
 }

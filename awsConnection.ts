@@ -4,10 +4,11 @@ import { fromEnv } from "@aws-sdk/credential-providers";
 const s3 = new S3Client({ region: "eu-north-1", credentials: fromEnv()});
 
 export async function S3sendFile(idFile:string, file:File) {
+
     const command = new PutObjectCommand({
-         Bucket: "fotosalone",
-         Key:idFile,
-         Body:file
+         "Key" : idFile, 
+         "Bucket" : "fotosalone",
+         "Body" : file.name,
     })
     await s3.send(command);
 }
