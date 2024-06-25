@@ -30,8 +30,8 @@ import { User } from "./db/users/schema.js";
 import { PasswordReset } from "./db/password_reset/schema.js";
 import { getHash } from "./argon.js";
 import admin from "./adminEndpoint.js";
-import busboy from "busboy";
 import { S3sendFile } from "../awsConnection.js";
+import { selectAllServices } from "./db/saloonServices/handler.js";
 
 const app = new Hono();
 
@@ -95,7 +95,7 @@ app.post("/logout", async (c) => {
   return c.body("SUCCESFULLY LOGGED OUT", { status: 200 });
 });
 
-/*
+
 app.post(
   "/register",
   zValidator(
@@ -106,7 +106,6 @@ app.post(
       nome: z.string(),
       cognome: z.string(),
       isMale: z.boolean(),
-      immagine: z.string(),
     })
   ),
   async (c) => {
@@ -130,8 +129,8 @@ app.post(
     return c.body(null, { status: 200 });
   }
 );
-*/
 
+/*
 app.post("/registerform", async (c) => {
   const data = await c.req.parseBody();
   //console.log(data['email']+" "+data["immagine"]);
@@ -145,10 +144,11 @@ app.post("/registerform", async (c) => {
   //DA INSERIRE SALVATAGGIO SU AWS S3 IMMAGINE E DARE UN ID PER IL RETRIEVE
   
   console.log(mail, immagine, nome, cognome, password, gender); 
-  let user = await insertUser({ mail, password, nome, cognome, gender }, immagine);
+  let user = await insertUser({ mail, password, nome, cognome, gender });
     if (user == null) return c.body("Mail già presente", { status: 500 });
   return c.body(null, { status: 200 });
 });
+*/
 
 app.post(
   "/reset-password",
@@ -184,6 +184,16 @@ app.post(
     return c.body(token, { status: 200 });
   }
 );
+
+admin.get("/servizi", async (c) => {
+  try {
+    let services = await selectAllServices();
+    return c.body(JSON.stringify(services), { status: 200 });
+  } catch (error) {
+    return c.body(JSON.stringify(error));
+  }
+});
+
 app.route("/admin", admin);
 app.route("/user", user);
 

@@ -14,9 +14,11 @@ import {
   selectPrenotation,
   updatePrenotation,
 } from "./db/prenotazioni/handler";
-import { selectService } from "./db/saloonServices/handler";
+import { deleteService, insertService, selectService, updateService } from "./db/saloonServices/handler";
 import { emailOptions, transporter } from "./emailServiceData";
 import { selectAllRecensioni } from "./db/recensioni/handler";
+import { desc } from "drizzle-orm";
+import { UploadPartRequestFilterSensitiveLog } from "@aws-sdk/client-s3";
 
 let admin = new Hono();
 declare module "hono" {
@@ -123,7 +125,7 @@ admin.post(
       });
       return c.body("DATA MODIFICATA", { status: 200 });
     } else {
-      return c.body("IMPOSSIBILE PRENOTARE DATA", { status: 500 });
+      return c.body("IMPOSSIBILE MODIFICARE DATA", { status: 500 });
     }
   }
 );
@@ -156,6 +158,64 @@ admin.post("/annulla/:id", async (c) => {
     return c.body("PRENOTATIONE ANNULLATA CON SUCCESSO", { status: 200 });
   }
 });
+
+admin.post(
+  "/nuovoservizio",
+  zValidator("json", z.object({
+    nome: z.string(),
+    durata: z.number(),
+    prezzo : z.number(),
+    descrizione: z.string()
+  })),
+  async (c) => {
+    let {nome, durata, prezzo, descrizione} = await c.req.json<{
+      nome: string,
+      durata: number,
+      prezzo: string,
+      descrizione:string
+    }>()
+    try{
+      await insertService({nome, durata, prezzo, descrizione});
+      return c.body("SUCCESSO", {status: 200})
+    }catch(e){ return c.body("ERRORE CONNESSIONE COL DATABASE", {status:500}) }
+  }
+);
+
+admin.post(
+  "/modificaservizio",
+  zValidator("json", z.object({
+    id: z.number(),
+    nome: z.string(),
+    durata: z.number(),
+    prezzo : z.number(),
+    descrizione: z.string()
+  })),
+  async (c) => {
+    let {id, nome, durata, prezzo, descrizione} = await c.req.json<{
+      id: number
+      nome: string,
+      durata: number,
+      prezzo: string,
+      descrizione:string
+    }>()
+    try{
+      await updateService(id, {nome, durata, prezzo, descrizione});
+      return c.body("SUCCESSO", {status: 200})
+    }catch(e){ return c.body("ERRORE CONNESSIONE COL DATABASE", {status:500}) }
+  }
+);
+
+admin.post(
+  "/eliminaservizio/:id",
+  async (c) => {
+    let {id} = await c.req.param()
+    try{
+      await deleteService(parseInt(id));
+      return c.body("SUCCESSO", {status: 200})
+    }catch(e){ return c.body("ERRORE CONNESSIONE COL DATABASE", {status:500}) }
+  }
+);
+
 
 admin.get("/recensioni", async (c) => {
   try {

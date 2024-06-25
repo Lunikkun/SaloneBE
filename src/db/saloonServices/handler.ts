@@ -26,11 +26,11 @@ export async function deleteService(id: number) {
 }
 export async function updateService(
   id: number,
-  { nome, prezzo, descrizione }: Partial<Service>,
+  { nome, prezzo, durata, descrizione }: Partial<Service>,
 ) {
   return await db
     .update(saloonServices)
-    .set({ nome: nome, prezzo: prezzo, descrizione: descrizione })
+    .set({ nome: nome, prezzo: prezzo, durata:durata, descrizione: descrizione })
     .where(eq(saloonServices.id, id))
     .returning();
 }
