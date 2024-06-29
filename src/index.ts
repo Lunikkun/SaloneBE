@@ -32,9 +32,11 @@ import { getHash } from "./argon.js";
 import admin from "./adminEndpoint.js";
 import { S3sendFile } from "../awsConnection.js";
 import { selectAllServices } from "./db/saloonServices/handler.js";
+import { selectLastRecensione, selectRecensioneByID } from "./db/recensioni/handler.js";
+import { cors } from "hono/cors";
 
 const app = new Hono();
-
+app.use('/*', cors({origin: "*"}))
 app.post(
   "/login",
   zValidator(
@@ -185,7 +187,7 @@ app.post(
   }
 );
 
-admin.get("/servizi", async (c) => {
+app.get("/servizi", async (c) => {
   try {
     let services = await selectAllServices();
     return c.body(JSON.stringify(services), { status: 200 });
@@ -194,7 +196,22 @@ admin.get("/servizi", async (c) => {
   }
 });
 
+app.get("/ultimarecensione", async (c) => {
+  try 
+  {
+    console.log('route presa')
+    let review = await selectLastRecensione();
+    console.log(review)
+    if(review)
+      return c.body(JSON.stringify(review), { status: 200 });
+    else
+      return c.body("Nessuna recensione", { status: 200 });
+  } catch (error) {
+      return c.body(JSON.stringify(error));
+    }
+});
 app.route("/admin", admin);
 app.route("/user", user);
+
 
 serve({ port: 3000, fetch: app.fetch });
