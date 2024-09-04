@@ -32,11 +32,28 @@ import { getHash } from "./argon.js";
 import admin from "./adminEndpoint.js";
 import { S3sendFile } from "../awsConnection.js";
 import { selectAllServices } from "./db/saloonServices/handler.js";
-import { selectLastRecensione, selectRecensioneByID } from "./db/recensioni/handler.js";
+import {
+  selectLastRecensione,
+  selectRecensioneByID,
+} from "./db/recensioni/handler.js";
 import { cors } from "hono/cors";
 
 const app = new Hono();
-app.use('/*', cors({origin: "*"}))
+app.use(
+  "/*",
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+    maxAge: 600,
+    allowHeaders: [
+      "X-Content-Type-Options",
+      "Cookie",
+      "Content-Type",
+      "Access-Control-Allow-Origin",
+      "Access-Control-Allow-Credential",
+    ],
+  })
+);
 app.post(
   "/login",
   zValidator(
@@ -53,15 +70,27 @@ app.post(
       console.log(data);
       if (data["result"] === false) {
         c.status(400);
-        return c.body(data.description + " " + data.result);
+        return c.body(JSON.stringify(data));
       }
-      const token: string = data["session"];
-      setCookie(c, "ssid", token, { httpOnly: true });
-      c.status(200);
-      return c.body("Succesful");
+      const token: string | null = data["session"];
+      if (token !== null) {
+        setCookie(c, "ssid", token, {
+          secure: true,
+          path: "/",
+          expires: new Date(Date.now() * 1000 * 60 * 60 * 24 * 7),
+          sameSite: "None",
+        });
+        c.status(200);
+        return c.body(JSON.stringify(data), {
+          headers: { "X-Content-Type-Options": "nosniff" },
+        });
+      }
     } catch (error) {
       console.log(error);
-      return c.body(JSON.stringify(error), { status: 500 });
+      return c.body(JSON.stringify(error), {
+        headers: { "X-Content-Type-Options": "nosniff" },
+        status: 500,
+      });
     }
   }
 );
@@ -96,7 +125,6 @@ app.post("/logout", async (c) => {
   await deleteExpiredSessions();
   return c.body("SUCCESFULLY LOGGED OUT", { status: 200 });
 });
-
 
 app.post(
   "/register",
@@ -197,21 +225,17 @@ app.get("/servizi", async (c) => {
 });
 
 app.get("/ultimarecensione", async (c) => {
-  try 
-  {
-    console.log('route presa')
+  try {
+    console.log("route presa");
     let review = await selectLastRecensione();
-    console.log(review)
-    if(review)
-      return c.body(JSON.stringify(review), { status: 200 });
-    else
-      return c.body("Nessuna recensione", { status: 200 });
+    console.log(review);
+    if (review) return c.body(JSON.stringify(review), { status: 200 });
+    else return c.body("Nessuna recensione", { status: 200 });
   } catch (error) {
-      return c.body(JSON.stringify(error));
-    }
+    return c.body(JSON.stringify(error));
+  }
 });
 app.route("/admin", admin);
 app.route("/user", user);
-
 
 serve({ port: 3000, fetch: app.fetch });
