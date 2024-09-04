@@ -230,7 +230,7 @@ app.get("/ultimarecensione", async (c) => {
     let review = await selectLastRecensione();
     console.log(review);
     if (review) return c.body(JSON.stringify(review), { status: 200 });
-    else return c.body("Nessuna recensione", { status: 200 });
+    else return c.body(JSON.stringify("Nessuna recensione"), { status: 200 });
   } catch (error) {
     return c.body(JSON.stringify(error));
   }
