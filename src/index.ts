@@ -186,7 +186,8 @@ app.post(
   async (c) => {
     const { email } = await c.req.json<{ email: string }>();
     const token = await createPasswordResetToken(email);
-    const link = "http://localhost:3000/reset-password/" + token;
+    //LINK AL FRONTEND
+    const link = "http://localhost:5173/" + token;
     console.log(c.req.json());
     await sendResetEmail(email, link);
     return c.body(null, { status: 200 });
@@ -195,7 +196,6 @@ app.post(
 
 app.get("/reset-password/:token", async (c) => {
   const { token } = c.req.param();
-
   return c.redirect("/reset-password-apply/" + token);
 });
 app.post(
