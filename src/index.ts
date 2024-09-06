@@ -206,7 +206,7 @@ app.post(
     let { password } = await c.req.json<{ password: string }>();
     const passwordResetSession = await selectUserFromResetToken(token);
     if (passwordResetSession === undefined)
-      return c.body(null, { status: 404 });
+      return c.body("Token non valido", { status: 404 });
     password = await getHash(password);
     await updateUser(passwordResetSession["users"].mail, { password });
     await deleteResetSessions(passwordResetSession["users"].id);
