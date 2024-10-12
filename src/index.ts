@@ -1,7 +1,8 @@
-import { PgUUID, uuid } from "drizzle-orm/pg-core";
+import { boolean, PgUUID, uuid } from "drizzle-orm/pg-core";
 import {
   insertUser,
   login,
+  loginWithCookie,
   selectUser,
   selectUserFromID,
   updateUser,
@@ -10,10 +11,11 @@ import { config } from "dotenv";
 import { Hono } from "Hono";
 import { serve } from "@hono/node-server";
 import { zValidator } from "@hono/zod-validator";
-import z from "zod";
+import z, { string } from "zod";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import {
   deleteExpiredSessions,
+  getUserFromToken,
   getUserIDFromToken,
   invalidateCookie,
 } from "./db/sessions/handler.js";
@@ -37,6 +39,7 @@ import {
   selectRecensioneByID,
 } from "./db/recensioni/handler.js";
 import { cors } from "hono/cors";
+import { createMiddleware } from "hono/factory";
 
 const app = new Hono();
 app.use(
@@ -54,6 +57,38 @@ app.use(
     ],
   })
 );
+
+/*user.use(
+  "/*",
+  createMiddleware(async (c, next) => {
+    const auth_cookie = getCookie(c, "ssid");
+    if (auth_cookie) {
+      const user = await getUserFromToken(auth_cookie);
+      if (!user) return c.body("Unauthorized", { status: 401 });
+      c.set("user", user);
+    }
+    await next();
+  })
+);
+*/
+
+app.post("/validatelogin", async (c) => {
+  //console.log("PROVA ENDPOINT PER CHECK DEL COOKIE?");
+  let token = getCookie(c, 'ssid');
+  //console.log(token);
+  if(token !== undefined){
+    let res = await loginWithCookie(token);
+    console.log(res)
+    if(res.result){
+      return c.body(JSON.stringify(res), {status:200})
+    }else
+      return c.body(JSON.stringify(res.description), {status:500})
+  }else
+    return c.body(JSON.stringify("Token non presente nelle sessioni"), {status:500
+  })
+
+});
+
 app.post(
   "/login",
   zValidator(
@@ -79,6 +114,7 @@ app.post(
           path: "/",
           expires: new Date(Date.now() * 1000 * 60 * 60 * 24 * 7),
           sameSite: "None",
+          partitioned: true,
         });
         c.status(200);
         return c.body(JSON.stringify(data), {

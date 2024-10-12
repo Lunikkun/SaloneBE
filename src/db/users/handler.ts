@@ -3,7 +3,7 @@ import { db } from "../../dbConnection.js";
 import { InsertUser, User, users } from "./schema.js";
 import { QueryResult } from "pg";
 import { getHash, verifyHash } from "../../argon.js";
-import { createSession } from "../sessions/handler.ts";
+import { createSession, getUserFromToken } from "../sessions/handler.ts";
 import { S3sendFile } from "../../../awsConnection.ts";
 import user from "../../userEndpoints.ts";
 
@@ -16,15 +16,16 @@ export async function insertUser(u: InsertUser) {
     return null;
   }
   return await db.insert(users).values(u).returning();
-  
 }
 //SELECT SINGLE USER
 export async function selectUser(mail: Required<string>): Promise<User> {
   let _result = await db.select().from(users).where(eq(users.mail, mail));
   return _result[0];
 }
-export async function selectUserFromID(user_id: Required<number>): Promise<User> {
-  let _result = await db.select().from(users).where(eq(users.id, user_id))
+export async function selectUserFromID(
+  user_id: Required<number>
+): Promise<User> {
+  let _result = await db.select().from(users).where(eq(users.id, user_id));
   return _result[0];
 }
 //SELECT MULTIPLE USERS
@@ -40,7 +41,7 @@ export async function removeUser(mail: Required<string>): Promise<QueryResult> {
 //MODIFY USER INFO
 export async function updateUser(
   mail: Required<string>,
-  { cognome, nome, password }: Partial<User>,
+  { cognome, nome, password }: Partial<User>
 ) {
   return await db
     .update(users)
@@ -55,12 +56,18 @@ export async function login(mail: string, password: string) {
     session: string | null;
     result: boolean;
     description: string | null;
-    userData: {id:number, nome:string, cognome: string, gender: string, creationDate: Date | null} | null
+    userData: {
+      id: number;
+      nome: string;
+      cognome: string;
+      gender: string;
+      creationDate: Date | null;
+    } | null;
   } = {
     session: null,
     result: false,
     description: "",
-    userData:null
+    userData: null,
   };
 
   if (!userToCheck) {
@@ -73,14 +80,60 @@ export async function login(mail: string, password: string) {
     res.session = await createSession(userToCheck);
     res.result = true;
     res.description = "Login avvenuto con successo";
-    res.userData = {id:userToCheck.id, nome:userToCheck.nome, cognome:userToCheck.cognome, gender:userToCheck.gender, creationDate:userToCheck.creation_date}
+    res.userData = {
+      id: userToCheck.id,
+      nome: userToCheck.nome,
+      cognome: userToCheck.cognome,
+      gender: userToCheck.gender,
+      creationDate: userToCheck.creation_date,
+    };
     return res; // Assign the value of 'res' before returning
   } else {
     res.description = "Password errata";
     res.result = false;
     res.session = null;
-    res.userData = null
+    res.userData = null;
     return res;
   }
   //TODO RETURNARE QUALCOSA DAL LOGIN, FORSE UN TOKEN O I DATI DI ACCESSO DELL'UTENTE
+}
+
+export async function loginWithCookie(sessionToken: string) {
+  let userToCheck = await getUserFromToken(sessionToken);
+  let res: {
+    session: string | null;
+    result: boolean;
+    description: string | null;
+    userData: {
+      id: number;
+      nome: string;
+      cognome: string;
+      gender: string;
+      creationDate: Date | null;
+    } | null;
+  } = {
+    session: null,
+    result: false,
+    description: "",
+    userData: null,
+  };
+
+  if (!userToCheck) {
+    res.session = null;
+    res.description = "Utente non trovato";
+    res.result = false;
+    return res;
+  } else {
+    res.session = sessionToken;
+    res.result = true;
+    res.description = "Login avvenuto con successo";
+    res.userData = {
+      id: userToCheck.id,
+      nome: userToCheck.nome,
+      cognome: userToCheck.cognome,
+      gender: userToCheck.gender,
+      creationDate: userToCheck.creation_date,
+    };
+    return res;
+  }
 }
