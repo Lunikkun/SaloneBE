@@ -59,9 +59,11 @@ export async function login(mail: string, password: string) {
     userData: {
       id: number;
       nome: string;
+      mail: string;
       cognome: string;
       gender: string;
       creationDate: Date | null;
+      isAdmin: boolean | null;
     } | null;
   } = {
     session: null,
@@ -85,6 +87,8 @@ export async function login(mail: string, password: string) {
       nome: userToCheck.nome,
       cognome: userToCheck.cognome,
       gender: userToCheck.gender,
+      mail : userToCheck.mail,
+      isAdmin : userToCheck.isAdmin,
       creationDate: userToCheck.creation_date,
     };
     return res; // Assign the value of 'res' before returning
@@ -107,9 +111,11 @@ export async function loginWithCookie(sessionToken: string) {
     userData: {
       id: number;
       nome: string;
+      mail: string;
       cognome: string;
       gender: string;
       creationDate: Date | null;
+      isAdmin: boolean | null;
     } | null;
   } = {
     session: null,
@@ -132,6 +138,8 @@ export async function loginWithCookie(sessionToken: string) {
       nome: userToCheck.nome,
       cognome: userToCheck.cognome,
       gender: userToCheck.gender,
+      mail : userToCheck.mail,
+      isAdmin : userToCheck.isAdmin,
       creationDate: userToCheck.creation_date,
     };
     return res;
