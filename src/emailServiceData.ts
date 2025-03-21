@@ -10,4 +10,4 @@ export const transporter = nodemailer.createTransport({
     },
   });
 
-export const emailOptions = {from: "securepassassist@outlook.com"}
+export const emailOptions = {from: process.env.MAIL_MAIL}
