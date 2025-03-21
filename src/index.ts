@@ -180,10 +180,14 @@ app.post(
       password: string;
       nome: string;
       cognome: string;
-      gender: string;
+      isMale: boolean;
     }>();
-    const { email, nome, cognome, password, gender } = data;
+    const { email, nome, cognome, password, isMale } = data;
     console.log(email, nome);
+    let gender = ""
+    if(isMale == true)
+        gender = "Male"
+    else gender = "Female"
     let user = await insertUser({
       mail: email,
       password,
