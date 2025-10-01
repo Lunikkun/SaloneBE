@@ -11,7 +11,9 @@ export default {
     database: process.env.DB_NAME!,
     password: process.env.DB_PW,
     port: Number.parseFloat(process.env.DB_PORT!),
+    ssl: false
   },
+  
   verbose: true,
   strict: true,
-} satisfies Config;
+} as Config
