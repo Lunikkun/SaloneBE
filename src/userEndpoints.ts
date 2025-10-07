@@ -30,6 +30,7 @@ import { createMiddleware } from "hono/factory";
 import { emailOptions, transporter } from "./emailServiceData";
 import { InsertRecensione } from "./db/recensioni/schema";
 import { insertRecensione } from "./db/recensioni/handler";
+import { sendBookingReminder } from "./mailgunSample";
 
 let user = new Hono();
 declare module "hono" {
@@ -83,7 +84,8 @@ user.post(
         service_id: id_servizio,
       };
       await createPrenotation(prenotazione);
-      transporter.sendMail({
+      sendBookingReminder(user, serviceInfo, data_pren)
+      /*transporter.sendMail({
         from: emailOptions.from,
         to: user.mail,
         subject: "Conferma prenotazione",
@@ -96,7 +98,7 @@ user.post(
           serviceInfo["nome"] +
           "<br> In data: " +
           data_pren,
-      });
+      });*/
       return c.body("Prenotazione effettuata", { status: 200 });
     }
   }
