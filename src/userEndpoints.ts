@@ -1,14 +1,9 @@
 import { Service } from "./db/saloonServices/schema";
-import { User, users } from "./db/users/schema";
+import { User } from "./db/users/schema";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "Hono";
-import { json } from "drizzle-orm/pg-core";
 import {
   getCookie,
-  getSignedCookie,
-  setCookie,
-  setSignedCookie,
-  deleteCookie,
 } from "hono/cookie";
 import z from "zod";
 import {
@@ -17,15 +12,11 @@ import {
   deleteExpiredPrenotations,
   deletePrenotation,
   getPrenotationInfo,
-  selectNextPrenotation,
   selectPrenotation,
-  selectPreviousPrenotation,
 } from "./db/prenotazioni/handler";
-import { getUserFromToken, getUserIDFromToken } from "./db/sessions/handler";
-import { InsertPrenotazione, Prenotazione } from "./db/prenotazioni/schema";
+import { getUserFromToken } from "./db/sessions/handler";
+import { InsertPrenotazione } from "./db/prenotazioni/schema";
 import { selectService } from "./db/saloonServices/handler";
-import { ne } from "drizzle-orm";
-import { serve } from "@hono/node-server";
 import { createMiddleware } from "hono/factory";
 import { emailOptions, transporter } from "./emailServiceData";
 import { InsertRecensione } from "./db/recensioni/schema";
@@ -42,11 +33,10 @@ user.use(
   "/*",
   createMiddleware(async (c, next) => {
     const auth_cookie = getCookie(c, "ssid");
-    if (!auth_cookie) return c.body("Unauthorized", { status: 401 });
+    if (!auth_cookie) return c.body(JSON.stringify({error:"Unauthorized"}), { status: 401 });
 
     const user = await getUserFromToken(auth_cookie);
-    if (!user) return c.body("Unauthorized", { status: 401 });
-
+    if (!user) return c.body(JSON.stringify({error: "Unauthorized"}), { status: 401 });
     c.set("user", user);
     await next();
   })
@@ -62,26 +52,29 @@ user.post(
     })
   ),
   async (c) => {
-    let { id_servizio, data_prenotazione } = await c.req.json<{
+    let { id_servizio, data_prenotazione, id_staff_member } = await c.req.json<{
       id_servizio: number;
       data_prenotazione: string;
+      id_staff_member : number
     }>();
     const data_pren = new Date(data_prenotazione);
     if (data_pren.getTime() < Date.now()) {
-      return c.body("INVALID DATE", { status: 400 });
+      return c.body(JSON.stringify({error: "Data già prenotata"}), { status: 400 });
     }
     let serviceInfo: Service = await selectService(id_servizio);
     let overlap = await checkPrenotationOverlap(
       data_pren,
-      serviceInfo["durata"] * 1000 * 60
+      serviceInfo["durata"] * 1000 * 60,
+      id_staff_member
     );
-    if (overlap) return c.body("Data già prenotata", { status: 500 });
+    if (overlap) return c.body(JSON.stringify({error: "Data già prenotata"}), { status: 400 });
     else {
       const user = c.get("user");
       let prenotazione: InsertPrenotazione = {
         data_prenotazione: data_pren,
         user_id: user.id,
         service_id: id_servizio,
+        staffMember : id_staff_member
       };
       await createPrenotation(prenotazione);
       sendBookingReminder(user, serviceInfo, data_pren)
@@ -99,7 +92,7 @@ user.post(
           "<br> In data: " +
           data_pren,
       });*/
-      return c.body("Prenotazione effettuata", { status: 200 });
+      return c.body(JSON.stringify({success: "Prenotazione effettuata"}), { status: 200 });
     }
   }
 );
@@ -110,9 +103,9 @@ user.post("/annulla/:id", async (c) => {
   let prenotationInfo = await getPrenotationInfo(parseInt(id));
   let serviceInfo = await selectService(prenotationInfo.service_id);
   if (prenotationInfo === undefined) {
-    return c.body("ID NON ESISTENTE", { status: 404 });
+    return c.body(JSON.stringify({error: "ID NON ESISTENTE"}), { status: 404 });
   } else if (prenotationInfo["user_id"] != c.get("user").id) {
-    return c.body("PRENOTAZIONE NON APPARTENTE ALL'UTENTE", { status: 500 });
+    return c.body(JSON.stringify({error: "PRENOTAZIONE NON APPARTENTE ALL'UTENTE"}), { status: 500 });
   } else {
     await deleteExpiredPrenotations();
     await deletePrenotation(prenotationInfo);

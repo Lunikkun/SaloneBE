@@ -1,5 +1,5 @@
 {
-  "id": "e9ab5b31-8ab7-42c2-a017-f908d63f4899",
+  "id": "f0d8f96a-f7f4-472c-b127-85fd90a0206f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -71,6 +71,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "worker": {
+          "name": "worker",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "nota": {
           "name": "nota",
           "type": "text",
@@ -100,6 +106,19 @@
           "tableTo": "saloonServices",
           "columnsFrom": [
             "service_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "prenotazioni_worker_workers_id_fk": {
+          "name": "prenotazioni_worker_workers_id_fk",
+          "tableFrom": "prenotazioni",
+          "tableTo": "workers",
+          "columnsFrom": [
+            "worker"
           ],
           "columnsTo": [
             "id"
@@ -148,7 +167,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "default": "'2025-10-13 12:39:50.917'"
+          "default": "'2025-10-18 19:24:25.537'"
         }
       },
       "indexes": {},
@@ -350,6 +369,31 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.workers": {
+      "name": "workers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

@@ -10,6 +10,7 @@ CREATE TABLE "prenotazioni" (
 	"user_id" integer NOT NULL,
 	"service_id" integer NOT NULL,
 	"data_pren" timestamp NOT NULL,
+	"worker" integer,
 	"nota" text DEFAULT ''
 );
 --> statement-breakpoint
@@ -18,7 +19,7 @@ CREATE TABLE "recensioni" (
 	"id_utente" integer NOT NULL,
 	"voto" integer DEFAULT 3 NOT NULL,
 	"recensione" text,
-	"data_recensione" timestamp DEFAULT '2025-10-13 12:39:50.917'
+	"data_recensione" timestamp DEFAULT '2025-10-18 19:24:25.537'
 );
 --> statement-breakpoint
 CREATE TABLE "saloonServices" (
@@ -50,7 +51,13 @@ CREATE TABLE "users" (
 	CONSTRAINT "users_mail_unique" UNIQUE("mail")
 );
 --> statement-breakpoint
+CREATE TABLE "workers" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"nome" varchar NOT NULL
+);
+--> statement-breakpoint
 ALTER TABLE "prenotazioni" ADD CONSTRAINT "prenotazioni_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "prenotazioni" ADD CONSTRAINT "prenotazioni_service_id_saloonServices_id_fk" FOREIGN KEY ("service_id") REFERENCES "public"."saloonServices"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "prenotazioni" ADD CONSTRAINT "prenotazioni_worker_workers_id_fk" FOREIGN KEY ("worker") REFERENCES "public"."workers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "recensioni" ADD CONSTRAINT "recensioni_id_utente_users_id_fk" FOREIGN KEY ("id_utente") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;

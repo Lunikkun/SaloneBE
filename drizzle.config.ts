@@ -3,7 +3,7 @@ import type { Config } from "drizzle-kit";
 
 export default {
   schema: ["./src/db/**/schema.ts"],
-  out: "./drizzle",
+  out: "./src/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
     user: process.env.DB_USER,
@@ -13,7 +13,6 @@ export default {
     port: Number.parseFloat(process.env.DB_PORT!),
     ssl: false
   },
-  
   verbose: true,
   strict: true,
 } as Config

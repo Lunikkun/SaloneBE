@@ -40,6 +40,7 @@ import {
 } from "./db/recensioni/handler.js";
 import { cors } from "hono/cors";
 import { createMiddleware } from "hono/factory";
+import { selectAllStaffMembers } from "./db/staff/handler.js";
 
 const app = new Hono();
 app.use(
@@ -74,19 +75,18 @@ app.use(
 
 app.post("/validatelogin", async (c) => {
   //console.log("PROVA ENDPOINT PER CHECK DEL COOKIE?");
-  let token = getCookie(c, 'ssid');
+  let token = getCookie(c, "ssid");
   //console.log(token);
-  if(token !== undefined){
+  if (token !== undefined) {
     let res = await loginWithCookie(token);
-    console.log(res)
-    if(res.result){
-      return c.body(JSON.stringify(res), {status:200})
-    }else
-      return c.body(JSON.stringify(res.description), {status:500})
-  }else
-    return c.body(JSON.stringify("Token non presente nelle sessioni"), {status:500
-  })
-
+    console.log(res);
+    if (res.result) {
+      return c.body(JSON.stringify(res), { status: 200 });
+    } else return c.body(JSON.stringify(res.description), { status: 500 });
+  } else
+    return c.body(JSON.stringify("Token non presente nelle sessioni"), {
+      status: 500,
+    });
 });
 
 app.post(
@@ -184,10 +184,9 @@ app.post(
     }>();
     const { email, nome, cognome, password, isMale } = data;
     console.log(email, nome);
-    let gender = ""
-    if(isMale == true)
-        gender = "Male"
-    else gender = "Female"
+    let gender = "";
+    if (isMale == true) gender = "Male";
+    else gender = "Female";
     let user = await insertUser({
       mail: email,
       password,
@@ -273,6 +272,15 @@ app.get("/ultimarecensione", async (c) => {
     else return c.body(JSON.stringify("Nessuna recensione"), { status: 200 });
   } catch (error) {
     return c.body(JSON.stringify(error));
+  }
+});
+
+app.get("/staff", async (c) => {
+  try {
+    let staff = await selectAllStaffMembers();
+    return c.body(JSON.stringify(staff), { status: 200 });
+  } catch (error) {
+    return c.body(JSON.stringify(error), { status: 500 });
   }
 });
 app.route("/admin", admin);
