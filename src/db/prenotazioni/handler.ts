@@ -3,12 +3,14 @@ import { db } from "../../dbConnection";
 import { InsertPrenotazione, Prenotazione, prenotazioni } from "./schema";
 import { selectService } from "../saloonServices/handler";
 import { staff } from "../staff/schema";
+import { saloonServices } from "../saloonServices/schema";
+
 
 export async function selectPrenotation(user_id: number) {
   return await db
-    .select()
+    .select({user_id: prenotazioni.user_id, service_name: saloonServices.nome, data_prenotazione:prenotazioni.data_prenotazione, note:prenotazioni.nota, durata: saloonServices.durata})
     .from(prenotazioni)
-    .where(eq(prenotazioni.user_id, user_id));
+    .where(eq(prenotazioni.user_id, user_id)).innerJoin(saloonServices, eq(prenotazioni.service_id, saloonServices.id));
 }
 export async function createPrenotation(pren: InsertPrenotazione) {
   await db.insert(prenotazioni).values(pren).returning();

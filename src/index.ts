@@ -8,7 +8,7 @@ import {
   updateUser,
 } from "./db/users/handler.js";
 import { config } from "dotenv";
-import { Hono } from "Hono";
+import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { zValidator } from "@hono/zod-validator";
 import z, { string } from "zod";

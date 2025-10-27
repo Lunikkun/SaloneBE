@@ -1,7 +1,7 @@
 import { Service } from "./db/saloonServices/schema";
 import { User } from "./db/users/schema";
 import { zValidator } from "@hono/zod-validator";
-import { Hono } from "Hono";
+import { Hono } from "hono";
 import {
   getCookie,
 } from "hono/cookie";
@@ -144,8 +144,9 @@ user.post(
   }
 );
 user.get("/prenotazioni", async (c) => {
-  console.log(c.get("user").id);
-  let prenotations = await selectPrenotation(c.get("user").id);
+  let prenotations = (await selectPrenotation(c.get("user").id));
+  console.log(prenotations)
   return c.body(JSON.stringify(prenotations), { status: 200 });
 });
+
 export default user;
