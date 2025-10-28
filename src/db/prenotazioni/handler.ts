@@ -8,9 +8,17 @@ import { saloonServices } from "../saloonServices/schema";
 
 export async function selectPrenotation(user_id: number) {
   return await db
-    .select({user_id: prenotazioni.user_id, service_name: saloonServices.nome, data_prenotazione:prenotazioni.data_prenotazione, note:prenotazioni.nota, durata: saloonServices.durata})
+    .select({
+      id: prenotazioni.id, 
+      user_id: prenotazioni.user_id, 
+      service_name: saloonServices.nome, 
+      data_prenotazione:prenotazioni.data_prenotazione, 
+      note:prenotazioni.nota, 
+      durata: saloonServices.durata,
+      staff_name: staff.nome
+    })
     .from(prenotazioni)
-    .where(eq(prenotazioni.user_id, user_id)).innerJoin(saloonServices, eq(prenotazioni.service_id, saloonServices.id));
+    .where(eq(prenotazioni.user_id, user_id)).innerJoin(saloonServices, eq(prenotazioni.service_id, saloonServices.id)).innerJoin(staff, eq(staff.id, prenotazioni.staffMember));
 }
 export async function createPrenotation(pren: InsertPrenotazione) {
   await db.insert(prenotazioni).values(pren).returning();
@@ -48,13 +56,7 @@ export async function selectPreviousPrenotation(date: Date, staffMemberId: numbe
     .limit(1)
     .then(res => res[0]);
 }
-/* DA RIFARE TUTTO IL SISTEMA DI CHECK OVERLAPPING IN QUANTO 
-ORA CI SONO DIVERSI MEMBRI DELLO STAFF CHE POSSONO OVERLAPPARSI TRA LORO
-DA TENERE IN CONTO: 
-LA DURATA DEL LORO LAVORO
-IL FATTO CHE UN GIORNO POSSONO ESSERE NON DISPONIBILI
- 
-*/
+
 export async function checkPrenotationOverlap(
   date: Date,
   durata: number, // in minuti
